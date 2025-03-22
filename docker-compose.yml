@@ -1,0 +1,36 @@
+services:
+  db:
+    image: postgres:latest
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: song_library
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  app:
+    platform: linux/amd64
+    build: .
+    ports:
+      - "8080:8080"
+    environment:
+      PORT: 8080
+      API_URL: http://api.example.com
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_USER: postgres
+      DB_PASSWORD: password
+      DB_NAME: song_library
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  postgres_data:

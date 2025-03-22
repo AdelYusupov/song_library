@@ -15,15 +15,19 @@ import (
 type SongService struct {
 	repo   *repository.SongRepository
 	logger *logrus.Logger
+	apiURL string // Добавляем поле для хранения URL внешнего API
 }
 
-func NewSongService(repo *repository.SongRepository, logger *logrus.Logger) *SongService {
-	return &SongService{repo: repo, logger: logger}
+func NewSongService(repo *repository.SongRepository, logger *logrus.Logger, apiURL string) *SongService {
+	return &SongService{
+		repo:   repo,
+		logger: logger,
+		apiURL: apiURL, // Сохраняем URL внешнего API
+	}
 }
-
 func (s *SongService) AddSong(song *model.Song) error {
 	// Запрос к внешнему API для получения дополнительной информации
-	url := fmt.Sprintf("%s/info?group=%s&song=%s", s.apiURL, song.Group, song.Title)
+	url := fmt.Sprintf("%s/info?group=%s&song=%s", s.apiURL, song.Band, song.Title)
 	resp, err := http.Get(url)
 	if err != nil {
 		s.logger.Errorf("Failed to fetch song info: %v", err)
